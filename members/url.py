@@ -18,6 +18,7 @@ urlpatterns = [
     path('view_all_trainers_staff', views.view_all_trainers_staff, name='view_all_trainers_staff'), #done without photo
     path('view_single_trainer_staff/<int:id>', views.view_single_trainer_staff, name='view_single_trainer_staff'),  #done
     path('edit_trainer_staff/<int:id>', views.edit_trainer_staff, name='edit_trainer_staff'), #done
-    path('delete_trainer_staff/<int:id>', views.delete_trainer_staff, name='delete_trainer_staff') #done
+    path('delete_trainer_staff/<int:id>', views.delete_trainer_staff, name='delete_trainer_staff'), #done
+    path('add_branch', views.add_branch, name='add_branch')
 
 ]

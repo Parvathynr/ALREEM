@@ -1,9 +1,22 @@
 # Create your models here.
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
+
 
 # Create your models here.
+
+class Branch(models.Model):
+    name = models.CharField(max_length=200, unique=True)
+    location = models.CharField(max_length=250, blank=True, null=True)
+
+class BranchAdminProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+
+
 class Plan(models.Model):
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=250, unique=True)  
     duration_days = models.IntegerField()
     price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)  
@@ -11,6 +24,7 @@ class Plan(models.Model):
 
 
 class Member(models.Model):
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=100)
     phone = models.CharField(max_length=15)
     email = models.EmailField(blank=True, null=True)
@@ -34,6 +48,7 @@ class TrainerStaff(models.Model):
         ("trainer", "Trainer"),
         ("staff", "Staff"),
     )
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True, blank=True)
 
     profile_picture = models.ImageField(upload_to="profile_pics/", null=True, blank=True)
     user = models.CharField(max_length=200)

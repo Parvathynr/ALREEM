@@ -4,7 +4,7 @@ import os
 from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
-from .models import Member, Plan
+from .models import Branch, Member, Plan
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import TrainerStaff
@@ -677,3 +677,21 @@ def delete_trainer_staff(request, id):
         return JsonResponse({"status": "success", "message": "Trainer/Staff deleted successfully!"}, status=200)
 
     return JsonResponse({"status": "failed", "message": "Invalid request method"}, status=405)
+
+
+def add_branch(request):
+    if request.method == 'POST':
+        branch_name = request.POST.get('bname')
+        branch_location = request.POST.get('blocation')
+        if branch_name and branch_location:
+            branch = Branch.objects.create(
+                name= branch_name,
+                location = branch_location
+            )
+            return JsonResponse({'status':'Successfully added branch!',
+                                 'id':branch.id})
+        else:
+            return JsonResponse({'status': 'Branch name and location are required.'}, status=400)
+
+    return JsonResponse({'status': 'Invalid request method'}, status=405)
+        
