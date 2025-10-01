@@ -13,6 +13,8 @@ class Branch(models.Model):
 class BranchAdminProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    phone = models.CharField(max_length=15, blank=True, null=True)
+
 
 
 class Plan(models.Model):

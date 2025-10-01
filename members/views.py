@@ -4,7 +4,7 @@ import os
 from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
-from .models import Branch, Member, Plan
+from .models import Branch, BranchAdminProfile, Member, Plan
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import TrainerStaff
@@ -695,3 +695,112 @@ def add_branch(request):
 
     return JsonResponse({'status': 'Invalid request method'}, status=405)
         
+
+
+def view_branches(request):
+    if request.method == 'GET':
+        branches = Branch.objects.all()
+        branches_list =[]
+        for i in branches:
+            branches_list.append(
+                {
+                'id': i.id,
+                'name':i.name,
+                'location': i.location
+                }
+            )
+        return JsonResponse({
+            'status':'success!',
+            'branches':branches_list,
+        
+        })
+    return JsonResponse({'status': 'Invalid request method'}, status=405)
+
+
+@csrf_exempt
+def delete_branch(request, id):
+    try:
+        branch = Branch.objects.get(id=id)
+    except Branch.DoesNotExist:
+        return JsonResponse({'status': 'Branch not found'}, status=404)
+
+    if request.method == 'POST':
+        branch.delete()
+        return JsonResponse({'status': 'Branch deleted successfully'})
+    return JsonResponse({'status': 'Invalid request method'}, status=405)
+
+
+@csrf_exempt
+def edit_branch(request, id):
+    try:
+        branch = Branch.objects.get(id=id)
+    except Branch.DoesNotExist:
+        return JsonResponse({'status': 'Branch not found'}, status=404)
+
+    if request.method == 'GET':
+        # Return current branch data
+        return JsonResponse({
+            'status': 'success',
+            'id': branch.id,
+            'name': branch.name,
+            'location': branch.location
+        })
+
+    elif request.method == 'POST':
+        # Update branch data
+        branch_name = request.POST.get('bname', branch.name)
+        branch_location = request.POST.get('blocation', branch.location)
+
+        branch.name = branch_name
+        branch.location = branch_location
+        branch.save()
+
+        return JsonResponse({
+            'status': 'Branch updated successfully',
+            'id': branch.id,
+            'name': branch.name,
+            'location': branch.location
+        })
+
+    return JsonResponse({'status': 'Invalid request method'}, status=405)
+
+from django.contrib.auth.models import User
+@csrf_exempt
+def add_branch_admin(request):
+    if request.method == 'POST':
+        
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        branch_id = request.POST.get('branch_id')
+        phone = request.POST.get('phone') 
+
+        # Validate required fields
+        if not username or not email or not password or not branch_id:
+            return JsonResponse({'status': 'All fields are required'}, status=400)
+
+        # Check if username already exists
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({'status': 'Username already exists'}, status=400)
+
+        # Create user
+        user = User.objects.create_user(username=username, email=email, password=password)
+
+        # Get branch
+        try:
+            branch = Branch.objects.get(id=branch_id)
+        except Branch.DoesNotExist:
+            return JsonResponse({'status': 'Branch not found'}, status=404)
+
+        # Create BranchAdminProfile
+        BranchAdminProfile.objects.create(user=user, branch=branch, phone=phone)
+
+        return JsonResponse({
+            'status': 'Branch admin created successfully',
+            'user_id': user.id,
+            'username': user.username,
+            'branch_id': branch.id,
+            'branch_name': branch.name
+        })
+
+    return JsonResponse({'status': 'Invalid request method'}, status=405)

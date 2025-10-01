@@ -19,6 +19,10 @@ urlpatterns = [
     path('view_single_trainer_staff/<int:id>', views.view_single_trainer_staff, name='view_single_trainer_staff'),  #done
     path('edit_trainer_staff/<int:id>', views.edit_trainer_staff, name='edit_trainer_staff'), #done
     path('delete_trainer_staff/<int:id>', views.delete_trainer_staff, name='delete_trainer_staff'), #done
-    path('add_branch', views.add_branch, name='add_branch')
+    path('add_branch', views.add_branch, name='add_branch'),
+    path('view-branches', views.view_branches, name='view-branches'),
+    path('edit-branch/<int:id>/', views.edit_branch, name='edit-branch'),
+    path('delete-branch/<int:id>/', views.delete_branch, name='delete-branch'),
+    path('add-branch-admin', views.add_branch_admin, name='add-branch-admin'),
 
 ]
