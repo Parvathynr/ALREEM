@@ -4,6 +4,8 @@ import os
 from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
+
+from members.decorators import branch_admin_required
 from .models import Branch, BranchAdminProfile, Member, Plan
 from django.views.decorators.csrf import csrf_exempt
 
@@ -427,6 +429,7 @@ def delete_member(request, id):
 
     return JsonResponse({'message': 'Invalid request method'}, status=405)
 
+@branch_admin_required
 @csrf_exempt
 def view_members(request):
     if request.method == 'GET':
