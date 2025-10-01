@@ -218,6 +218,44 @@ def add_member(request):
 
     return JsonResponse({'message': 'Invalid request method'}, status=405)
 
+
+
+@branch_admin_required
+def pending_members(request):
+    if request.method != 'GET':
+        return JsonResponse({'message': 'Invalid request method'}, status=405)
+
+    # Filter members based on role
+    if request.role == "superuser":
+        members = Member.objects.filter(due_amount__gt=0)
+    else:  # branch_admin
+        members = Member.objects.filter(branch_id=request.branch_id, due_amount__gt=0)
+
+    data = list(members.values(
+        'id', 'name', 'phone', 'email', 'due_amount', 'expire_date', 'branch_id'
+    ))
+
+    return JsonResponse(data, safe=False, status=200)
+
+from datetime import date
+@branch_admin_required
+def expired_members(request):
+    if request.method != 'GET':
+        return JsonResponse({'message': 'Invalid request method'}, status=405)
+
+    today = date.today()
+
+    if request.role == "superuser":
+        members = Member.objects.filter(expire_date__lt=today)
+    else:  # branch_admin
+        members = Member.objects.filter(branch_id=request.branch_id, expire_date__lt=today)
+
+    data = list(members.values(
+        'id', 'name', 'phone', 'email', 'due_amount', 'expire_date', 'branch_id'
+    ))
+
+    return JsonResponse(data, safe=False, status=200)
+
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404

@@ -4,6 +4,8 @@ from . import views
 
 
 urlpatterns = [
+    path('pending_members', views.pending_members, name='pending_members'),
+    path('expired_members', views.expired_members, name='expired_members'),
     path('admin_login', views.admin_login, name='admin_login'),           #done
     path('admin_logout', views.admin_logout, name='admin_logout'),        #done
     path('add_member', views.add_member, name='add_member'),              #done
