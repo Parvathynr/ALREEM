@@ -678,7 +678,7 @@ def delete_trainer_staff(request, id):
 
     return JsonResponse({"status": "failed", "message": "Invalid request method"}, status=405)
 
-
+@csrf_exempt
 def add_branch(request):
     if request.method == 'POST':
         branch_name = request.POST.get('bname')
