@@ -19,21 +19,73 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
+# @csrf_exempt
+# def admin_login(request):
+#     if request.method == "POST":
+#         username = request.POST.get("username")
+#         password = request.POST.get("password")
+
+#         user = authenticate(request, username=username, password=password)
+
+#         if user is not None and user.is_staff:  
+#             login(request, user)
+#             return JsonResponse({"status": "success", "message": "Login successful!"}, status=200)
+#         else:
+#             return JsonResponse({"status": "failed", "message": "Invalid credentials or not authorized!"}, status=401)
+
+#     return JsonResponse({"status": "failed", "message": "Invalid request method"}, status=405)
+
+import jwt
+from datetime import datetime, timedelta
+from django.conf import settings
+from django.contrib.auth import authenticate
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from .models import BranchAdminProfile
+
 @csrf_exempt
 def admin_login(request):
-    if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
+    if request.method != "POST":
+        return JsonResponse({"status": "failed", "message": "Invalid request method"}, status=405)
 
-        user = authenticate(request, username=username, password=password)
+    username = request.POST.get("username")
+    password = request.POST.get("password")
 
-        if user is not None and user.is_staff:  
-            login(request, user)
-            return JsonResponse({"status": "success", "message": "Login successful!"}, status=200)
-        else:
-            return JsonResponse({"status": "failed", "message": "Invalid credentials or not authorized!"}, status=401)
+    if not username or not password:
+        return JsonResponse({"status": "failed", "message": "Username and password required"}, status=400)
 
-    return JsonResponse({"status": "failed", "message": "Invalid request method"}, status=405)
+    user = authenticate(request, username=username, password=password)
+
+    if user is None:
+        return JsonResponse({"status": "failed", "message": "Invalid credentials!"}, status=401)
+
+    # Determine role and branch
+    if user.is_superuser:
+        role = "superuser"
+        branch_id = None
+    elif hasattr(user, "branchadminprofile"):
+        role = "branch_admin"
+        branch_id = user.branchadminprofile.branch.id
+    else:
+        return JsonResponse({"status": "failed", "message": "Not authorized!"}, status=401)
+
+    # Generate JWT token
+    payload = {
+        "user_id": user.id,
+        "username": user.username,
+        "role": role,
+        "branch_id": branch_id,
+        "exp": datetime.utcnow() + timedelta(hours=8)  # token valid for 8 hours
+    }
+    token = jwt.encode(payload, settings.JWT_SECRET, algorithm="HS256")
+
+    return JsonResponse({
+        "status": "success",
+        "message": "Login successful!",
+        "token": token,
+        "role": role,
+        "branch_id": branch_id
+    })
 
 
 @csrf_exempt

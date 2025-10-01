@@ -30,7 +30,8 @@ ALLOWED_HOSTS = ['alreem-7r91.onrender.com',
                  'http://localhost:5173',
                  "http://alreemgym.com",
                  "https://statuesque-zabaione-0ec173.netlify.app",
-                 'https://statuesque-zabaione-0ec173.netlify.app'
+                 'https://statuesque-zabaione-0ec173.netlify.app',
+                 '127.0.0.1'
                  
                  ]
 
@@ -39,7 +40,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://alreem-7r91.onrender.com",
     "http://alreemgym.com",
     "https://statuesque-zabaione-0ec173.netlify.app",
-    'https://statuesque-zabaione-0ec173.netlify.app'
+    'https://statuesque-zabaione-0ec173.netlify.app','https://127.0.0.1'
 
 ]
 
