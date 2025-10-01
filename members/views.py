@@ -431,30 +431,53 @@ def delete_member(request, id):
 
 @branch_admin_required
 @csrf_exempt
+@branch_admin_required  # Make sure you use the decorator
 def view_members(request):
-    if request.method == 'GET':
-        members = Member.objects.all().values(
-            'id',
-            'name',
-            'phone',
-            'email',
-            'age',
-            'weight',
-            'blood_group',
-            'joining_date',
-            'expire_date',
-            'status',
-            'plan_type',  
-            'location',
-            'profession',
-            'total_fee',
-            'due_amount',
-            'leave_date',
-            'rejoin_date'
-        )
-        return JsonResponse(list(members), safe=False, status=200)
+    if request.method != 'GET':
+        return JsonResponse({'message': 'Invalid request method'}, status=405)
 
-    return JsonResponse({'message': 'Invalid request method'}, status=405)
+    # Filter members based on role
+    if request.role == "superuser":
+        members = Member.objects.all().values(
+            'id', 'name', 'phone', 'email', 'age', 'weight', 'blood_group',
+            'joining_date', 'expire_date', 'status', 'plan_type',  
+            'location', 'profession', 'total_fee', 'due_amount',
+            'leave_date', 'rejoin_date'
+        )
+    else:  # branch_admin
+        members = Member.objects.filter(branch_id=request.branch_id).values(
+            'id', 'name', 'phone', 'email', 'age', 'weight', 'blood_group',
+            'joining_date', 'expire_date', 'status', 'plan_type',  
+            'location', 'profession', 'total_fee', 'due_amount',
+            'leave_date', 'rejoin_date'
+        )
+
+    return JsonResponse(list(members), safe=False, status=200)
+
+# def view_members(request):
+#     if request.method == 'GET':
+#         members = Member.objects.all().values(
+#             'id',
+#             'name',
+#             'phone',
+#             'email',
+#             'age',
+#             'weight',
+#             'blood_group',
+#             'joining_date',
+#             'expire_date',
+#             'status',
+#             'plan_type',  
+#             'location',
+#             'profession',
+#             'total_fee',
+#             'due_amount',
+#             'leave_date',
+#             'rejoin_date'
+#         )
+#         return JsonResponse(list(members), safe=False, status=200)
+
+#     return JsonResponse({'message': 'Invalid request method'}, status=405)
 
 
 @csrf_exempt
