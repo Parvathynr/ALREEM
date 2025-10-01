@@ -119,6 +119,12 @@ DATABASES = {
 print("DATABASE_URL:", os.getenv('DATABASE_URL'))
 
 
+import os
+
+JWT_SECRET = os.environ.get('JWT_SECRET')
+
+if not JWT_SECRET:
+    raise Exception("JWT_SECRET not set in environment variables!")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
